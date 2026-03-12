@@ -1,0 +1,104 @@
+name: Sync to Homebrew Tap
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: librefang/homebrew-tap
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate formula
+        id: formula
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+
+          # Get asset downloads and checksums
+          curl -sL "https://api.github.com/repos/librefang/librefang/releases/tags/$TAG" \
+            | jq -r '.assets[] | select(.name | endswith(".tar.gz") or endswith(".zip")) | "\(.name) \(.browser_download_url)"' \
+            > assets.txt
+
+          # Generate formula.rb
+          cat > Formula/librefang.rb << 'RUBY'
+class Librefang < Formula
+  desc "Community-Maintained Agent Operating System written in Rust"
+  homepage "https://librefang.ai"
+  license "MIT"
+  version "REPLACE_VERSION"
+
+  on_macos do
+    if Hardware::CPU.arm?
+      url "REPLACE_ARM64_DARWIN_URL"
+      sha256 "REPLACE_ARM64_DARWIN_SHA"
+    else
+      url "REPLACE_X86_DARWIN_URL"
+      sha256 "REPLACE_X86_DARWIN_SHA"
+    end
+  end
+
+  on_linux do
+    if Hardware::CPU.arm?
+      url "REPLACE_ARM64_LINUX_URL"
+      sha256 "REPLACE_ARM64_LINUX_SHA"
+    else
+      url "REPLACE_X86_LINUX_URL"
+      sha256 "REPLACE_X86_LINUX_SHA"
+    end
+  end
+
+  def install
+    bin.install "librefang"
+  end
+
+  test do
+    system "#{bin}/librefang", "--version"
+  end
+end
+RUBY
+
+          # Replace version
+          sed -i "s/REPLACE_VERSION/$VERSION/" Formula/librefang.rb
+
+          # Get and calculate SHA256 for each asset
+          for asset in $(curl -sL "https://api.github.com/repos/librefang/librefang/releases/tags/$TAG" | jq -r '.assets[] | select(.name | endswith(".tar.gz") or endswith(".zip")) | @base64'); do
+            name=$(echo "$asset" | base64 -d | jq -r '.name')
+            url=$(echo "$asset" | base64 -d | jq -r '.browser_download_url')
+
+            # Download and calculate SHA256
+            sha=$(curl -sL "$url" | sha256sum | cut -d' ' -f1)
+
+            case "$name" in
+              *aarch64-apple-darwin*)
+                sed -i "s|REPLACE_ARM64_DARWIN_URL|$url|" Formula/librefang.rb
+                sed -i "s|REPLACE_ARM64_DARWIN_SHA|$sha|" Formula/librefang.rb
+                ;;
+              *x86_64-apple-darwin*)
+                sed -i "s|REPLACE_X86_DARWIN_URL|$url|" Formula/librefang.rb
+                sed -i "s|REPLACE_X86_DARWIN_SHA|$sha|" Formula/librefang.rb
+                ;;
+              *aarch64-unknown-linux-gnu*)
+                sed -i "s|REPLACE_ARM64_LINUX_URL|$url|" Formula/librefang.rb
+                sed -i "s|REPLACE_ARM64_LINUX_SHA|$sha|" Formula/librefang.rb
+                ;;
+              *x86_64-unknown-linux-gnu*)
+                sed -i "s|REPLACE_X86_LINUX_URL|$url|" Formula/librefang.rb
+                sed -i "s|REPLACE_X86_LINUX_SHA|$sha|" Formula/librefang.rb
+                ;;
+            esac
+          done
+
+          cat Formula/librefang.rb
+
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "chore: update formula to ${{ github.event.release.tag_name }}" || echo "No changes"
+          git push
