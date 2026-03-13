@@ -6,7 +6,7 @@
 <h3 align="center">Libre Agent Operating System — Free as in Freedom</h3>
 
 <p align="center">
-  Open-source Agent OS built in Rust. 137K LOC. 14 crates. 1,767+ tests. Zero clippy warnings.<br/>
+  Open-source Agent OS built in Rust. 137K LOC. 14 crates. 2,100+ tests. Zero clippy warnings.<br/>
   <strong>Forked from <a href="https://github.com/RightNow-AI/openfang">RightNow-AI/openfang</a>. Truly open governance. Contributors welcome. PRs that help the project get merged.</strong>
 </p>
 
@@ -84,14 +84,10 @@ librefang start
 
 </details>
 
-When LibreFang starts publishing releases, the install commands will be:
-
+**Or run with Docker:**
 ```bash
-curl -fsSL https://librefang.ai/install.sh | sh
-```
-
-```powershell
-irm https://librefang.ai/install.ps1 | iex
+docker compose up --build
+# Dashboard live at http://localhost:4545
 ```
 
 ## Why LibreFang? — The Difference from OpenFang
@@ -102,7 +98,7 @@ LibreFang was forked from [RightNow-AI/openfang](https://github.com/RightNow-AI/
 
 | | OpenFang | LibreFang |
 |---|---------|-----------|
-| **License** | MIT | MIT + Apache-2.0 |
+| **License** | MIT + Apache-2.0 | MIT |
 | **Governance** | Single-company controlled | Community-governed, transparent decision-making |
 | **PR Policy** | At maintainer's discretion | Positive contributions merged as-is; others get active review with improvement suggestions |
 | **Attribution** | Not guaranteed | Always preserved in commits and release notes |
@@ -408,6 +404,23 @@ librefang start
 
 </details>
 
+<details>
+<summary><strong>Docker</strong></summary>
+
+```bash
+git clone https://github.com/librefang/librefang.git
+cd librefang
+docker compose up --build
+# Dashboard live at http://localhost:4545
+```
+
+Pass API keys via environment variables or a `.env` file:
+```bash
+GROQ_API_KEY=your-key docker compose up --build
+```
+
+</details>
+
 ---
 
 ## Development
@@ -416,7 +429,7 @@ librefang start
 # Build the workspace
 cargo build --workspace --lib
 
-# Run all tests (1,767+)
+# Run all tests (2,100+)
 cargo test --workspace
 
 # Lint (must be 0 warnings)

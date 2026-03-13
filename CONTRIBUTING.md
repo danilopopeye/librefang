@@ -129,7 +129,7 @@ LibreFang is organized as a Cargo workspace with 14 crates:
 |-------|------|
 | `librefang-types` | Shared type definitions, taint tracking, manifest signing (Ed25519), model catalog, MCP/A2A config types |
 | `librefang-memory` | SQLite-backed memory substrate with vector embeddings, usage tracking, canonical sessions, JSONL mirroring |
-| `librefang-runtime` | Agent loop, 3 LLM drivers (Anthropic/Gemini/OpenAI-compat), 38 built-in tools, WASM sandbox, MCP client/server, A2A protocol |
+| `librefang-runtime` | Agent loop, 3 LLM drivers (Anthropic/Gemini/OpenAI-compat), 53 built-in tools, WASM sandbox, MCP client/server, A2A protocol |
 | `librefang-hands` | Hands system (curated autonomous capability packages), 7 bundled hands |
 | `librefang-extensions` | Integration registry (25 bundled MCP templates), AES-256-GCM credential vault, OAuth2 PKCE |
 | `librefang-kernel` | Assembles all subsystems: workflow engine, RBAC auth, heartbeat monitor, cron scheduler, config hot-reload |

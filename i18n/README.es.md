@@ -6,7 +6,7 @@
 <h3 align="center">Sistema Operativo de Agentes Libre — Libre como en Libertad</h3>
 
 <p align="center">
-  Sistema operativo de agente de código abierto escrito en Rust. 137K líneas de código. 14 crates. 1767+ pruebas. Cero advertencias de clippy.<br/>
+  Sistema operativo de agente de código abierto escrito en Rust. 137K líneas de código. 14 crates. 2,100+ pruebas. Cero advertencias de clippy.<br/>
   <strong>Bifurcado de <a href="https://github.com/RightNow-AI/openfang">RightNow-AI/openfang</a>. Gobernanza verdaderamente abierta. Contribuidores bienvenidos. Los PRs que ayudan al proyecto se fusionan.</strong>
 </p>
 
@@ -57,7 +57,7 @@ LibreFang se bifurcó de [RightNow-AI/openfang](https://github.com/RightNow-AI/o
 
 | | OpenFang | LibreFang |
 |---|---------|-----------|
-| **Licencia** | MIT | MIT + Apache-2.0 |
+| **Licencia** | MIT + Apache-2.0 | MIT |
 | **Gobernanza** | Controlada por una empresa | Gobernanza comunitaria, toma de decisiones transparente |
 | **Política de PRs** | A discreción del mantenedor | Contribuciones positivas fusionadas tal cual; las demás reciben revisión activa con sugerencias de mejora |
 | **Atribución** | Sin garantía | Siempre preservada en commits y notas de lanzamiento |
@@ -93,6 +93,12 @@ librefang start
 ```bash
 brew tap librefang/tap
 brew install librefang
+```
+
+**O ejecuta con Docker:**
+```bash
+docker compose up --build
+# Panel: http://localhost:4545
 ```
 
 ---
@@ -208,7 +214,7 @@ librefang agent spawn coder
 # Construir workspace
 cargo build --workspace --lib
 
-# Ejecutar todas las pruebas (1767+)
+# Ejecutar todas las pruebas (2,100+)
 cargo test --workspace
 
 # Lint (debe ser 0 advertencias)

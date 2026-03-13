@@ -72,6 +72,8 @@ pub enum SkillSource {
     Native,
     /// Bundled at compile time (ships with LibreFang binary).
     Bundled,
+    /// User-created workspace or local skill.
+    Local,
     /// Converted from OpenClaw format.
     OpenClaw,
     /// Downloaded from ClawHub marketplace.

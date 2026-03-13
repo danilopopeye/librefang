@@ -6,7 +6,7 @@
 <h3 align="center">Freies Agenten-Betriebssystem — Libre bedeutet Freiheit</h3>
 
 <p align="center">
-  Open-Source-Agent-OS in Rust geschrieben. 137K Codezeilen. 14 Crates. 1767+ Tests. Keine Clippy-Warnungen.<br/>
+  Open-Source-Agent-OS in Rust geschrieben. 137K Codezeilen. 14 Crates. 2,100+ Tests. Keine Clippy-Warnungen.<br/>
   <strong>Geforkt von <a href="https://github.com/RightNow-AI/openfang">RightNow-AI/openfang</a>. Wirklich offene Governance. Mitwirkende willkommen. PRs, die dem Projekt helfen, werden gemergt.</strong>
 </p>
 
@@ -57,7 +57,7 @@ LibreFang wurde von [RightNow-AI/openfang](https://github.com/RightNow-AI/openfa
 
 | | OpenFang | LibreFang |
 |---|---------|-----------|
-| **Lizenz** | MIT | MIT + Apache-2.0 |
+| **Lizenz** | MIT + Apache-2.0 | MIT |
 | **Governance** | Von einem Unternehmen kontrolliert | Community-Governance, transparente Entscheidungsfindung |
 | **PR-Richtlinie** | Nach Ermessen des Maintainers | Positive Beiträge werden unverändert gemergt; andere erhalten aktives Review mit Verbesserungsvorschlägen |
 | **Zuschreibung** | Nicht garantiert | Immer in Commits und Release-Notes beibehalten |
@@ -93,6 +93,12 @@ librefang start
 ```bash
 brew tap librefang/tap
 brew install librefang
+```
+
+**Oder mit Docker ausführen:**
+```bash
+docker compose up --build
+# Dashboard: http://localhost:4545
 ```
 
 ---
@@ -208,7 +214,7 @@ librefang agent spawn coder
 # Workspace bauen
 cargo build --workspace --lib
 
-# Alle Tests ausführen (1767+)
+# Alle Tests ausführen (2,100+)
 cargo test --workspace
 
 # Lint (muss 0 Warnungen sein)
