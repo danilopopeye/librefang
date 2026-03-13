@@ -895,9 +895,9 @@ dependencies = [
 
 [[package]]
 name = "clap_lex"
-version = "1.0.0"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a822ea5bc7590f9d40f1ba12c0dc3c2760f3482c6984db1573ad11031420831"
+checksum = "c8d4a3bb8b1e0c1050499d1815f5ab16d04f0959b233085fb31653fbfc9d98f9"
 
 [[package]]
 name = "cmake"
@@ -3616,12 +3616,14 @@ dependencies = [
  "librefang-runtime",
  "librefang-skills",
  "librefang-types",
+ "open",
  "ratatui",
  "reqwest",
  "serde",
  "serde_json",
  "tokio",
  "toml 1.0.6+spec-1.1.0",
+ "toml_edit 0.25.4+spec-1.1.0",
  "tracing",
  "tracing-subscriber",
  "unic-langid",
@@ -3791,6 +3793,7 @@ dependencies = [
  "librefang-memory",
  "librefang-skills",
  "librefang-types",
+ "rand 0.8.5",
  "regex-lite",
  "reqwest",
  "rusqlite",
@@ -4496,9 +4499,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.21.3"
+version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
+checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 
 [[package]]
 name = "once_cell_polyfill"
@@ -7585,6 +7588,7 @@ dependencies = [
  "indexmap 2.13.0",
  "toml_datetime 1.0.0+spec-1.1.0",
  "toml_parser",
+ "toml_writer",
  "winnow 0.7.15",
 ]
 

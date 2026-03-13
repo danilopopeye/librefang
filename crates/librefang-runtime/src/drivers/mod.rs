@@ -5,6 +5,7 @@
 //! Mistral, Fireworks, Ollama, vLLM, Chutes.ai, and any OpenAI-compatible endpoint.
 
 pub mod anthropic;
+pub mod chatgpt;
 pub mod claude_code;
 pub mod copilot;
 pub mod fallback;
@@ -65,7 +66,7 @@ fn provider_defaults(provider: &str) -> Option<ProviderDefaults> {
             api_key_env: "FIREWORKS_API_KEY",
             key_required: true,
         }),
-        "openai" => Some(ProviderDefaults {
+        "openai" | "codex" | "openai-codex" => Some(ProviderDefaults {
             base_url: OPENAI_BASE_URL,
             api_key_env: "OPENAI_API_KEY",
             key_required: true,
@@ -135,14 +136,14 @@ fn provider_defaults(provider: &str) -> Option<ProviderDefaults> {
             api_key_env: "REPLICATE_API_TOKEN",
             key_required: true,
         }),
+        "chatgpt" => Some(ProviderDefaults {
+            base_url: crate::chatgpt_oauth::CHATGPT_BASE_URL,
+            api_key_env: "CHATGPT_SESSION_TOKEN",
+            key_required: true,
+        }),
         "github-copilot" | "copilot" => Some(ProviderDefaults {
             base_url: copilot::GITHUB_COPILOT_BASE_URL,
             api_key_env: "GITHUB_TOKEN",
-            key_required: true,
-        }),
-        "codex" | "openai-codex" => Some(ProviderDefaults {
-            base_url: OPENAI_BASE_URL,
-            api_key_env: "OPENAI_API_KEY",
             key_required: true,
         }),
         "claude-code" => Some(ProviderDefaults {
@@ -172,7 +173,7 @@ fn provider_defaults(provider: &str) -> Option<ProviderDefaults> {
         }),
         "minimax-cn" => Some(ProviderDefaults {
             base_url: MINIMAX_CN_BASE_URL,
-            api_key_env: "MINIMAX_API_KEY",
+            api_key_env: "MINIMAX_CN_API_KEY",
             key_required: true,
         }),
         "zhipu" | "glm" => Some(ProviderDefaults {
@@ -286,29 +287,35 @@ pub fn create_driver(config: &DriverConfig) -> Result<Arc<dyn LlmDriver>, LlmErr
         return Ok(Arc::new(gemini::GeminiDriver::new(api_key, base_url)));
     }
 
-    // Codex — reuses OpenAI driver with credential sync from Codex CLI
-    if provider == "codex" || provider == "openai-codex" {
-        let api_key = config
-            .api_key
-            .clone()
-            .or_else(|| std::env::var("OPENAI_API_KEY").ok())
-            .or_else(crate::model_catalog::read_codex_credential)
-            .ok_or_else(|| {
-                LlmError::MissingApiKey("Set OPENAI_API_KEY or install Codex CLI".to_string())
-            })?;
-        let base_url = config
-            .base_url
-            .clone()
-            .unwrap_or_else(|| OPENAI_BASE_URL.to_string());
-        return Ok(Arc::new(openai::OpenAIDriver::new(api_key, base_url)));
-    }
-
     // Claude Code CLI — subprocess-based, no API key needed
     if provider == "claude-code" {
         let cli_path = config.base_url.clone();
         return Ok(Arc::new(claude_code::ClaudeCodeDriver::new(
             cli_path,
             config.skip_permissions,
+        )));
+    }
+
+    // ChatGPT — wraps OpenAI-compatible driver with session token from browser auth.
+    // The ChatGptDriver caches the session token and delegates to an OpenAI-compatible driver.
+    if provider == "chatgpt" {
+        let session_token = config
+            .api_key
+            .clone()
+            .or_else(|| std::env::var("CHATGPT_SESSION_TOKEN").ok())
+            .ok_or_else(|| {
+                LlmError::MissingApiKey(
+                    "Set CHATGPT_SESSION_TOKEN or run `librefang auth chatgpt` to authenticate"
+                        .to_string(),
+                )
+            })?;
+        let base_url = config
+            .base_url
+            .clone()
+            .unwrap_or_else(|| crate::chatgpt_oauth::CHATGPT_BASE_URL.to_string());
+        return Ok(Arc::new(chatgpt::ChatGptDriver::new(
+            session_token,
+            base_url,
         )));
     }
 
@@ -353,11 +360,18 @@ pub fn create_driver(config: &DriverConfig) -> Result<Arc<dyn LlmDriver>, LlmErr
 
     // All other providers use OpenAI-compatible format
     if let Some(defaults) = provider_defaults(provider) {
-        let api_key = config
+        let mut api_key = config
             .api_key
             .clone()
             .or_else(|| std::env::var(defaults.api_key_env).ok())
             .unwrap_or_default();
+
+        // For OpenAI-compatible providers, also try Codex CLI credential as fallback
+        if api_key.is_empty() && matches!(provider, "openai" | "codex" | "openai-codex") {
+            if let Some(codex_key) = crate::model_catalog::read_codex_credential() {
+                api_key = codex_key;
+            }
+        }
 
         if defaults.key_required && api_key.is_empty() {
             return Err(LlmError::MissingApiKey(format!(
@@ -411,7 +425,7 @@ pub fn create_driver(config: &DriverConfig) -> Result<Arc<dyn LlmDriver>, LlmErr
     Err(LlmError::Api {
         status: 0,
         message: format!(
-            "Unknown provider '{}'. Supported: anthropic, gemini, openai, groq, openrouter, \
+            "Unknown provider '{}'. Supported: anthropic, chatgpt, gemini, openai, groq, openrouter, \
              deepseek, together, mistral, fireworks, ollama, vllm, lmstudio, perplexity, \
              cohere, ai21, cerebras, sambanova, huggingface, xai, replicate, github-copilot, \
              chutes, venice, codex, claude-code. Or set base_url for a custom OpenAI-compatible endpoint.",
@@ -480,6 +494,7 @@ pub fn detect_available_provider() -> Option<(&'static str, &'static str, &'stat
 pub fn known_providers() -> &'static [&'static str] {
     &[
         "anthropic",
+        "chatgpt",
         "gemini",
         "openai",
         "groq",
@@ -512,7 +527,6 @@ pub fn known_providers() -> &'static [&'static str] {
         "volcengine",
         "chutes",
         "venice",
-        "codex",
         "claude-code",
     ]
 }
@@ -602,6 +616,7 @@ mod tests {
         assert!(providers.contains(&"huggingface"));
         assert!(providers.contains(&"xai"));
         assert!(providers.contains(&"replicate"));
+        assert!(providers.contains(&"chatgpt"));
         assert!(providers.contains(&"github-copilot"));
         assert!(providers.contains(&"moonshot"));
         assert!(providers.contains(&"qwen"));
@@ -614,7 +629,6 @@ mod tests {
         assert!(providers.contains(&"qianfan"));
         assert!(providers.contains(&"volcengine"));
         assert!(providers.contains(&"chutes"));
-        assert!(providers.contains(&"codex"));
         assert!(providers.contains(&"claude-code"));
         assert_eq!(providers.len(), 35);
     }

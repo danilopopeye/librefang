@@ -5,8 +5,8 @@
 
 use librefang_types::model_catalog::{
     AuthStatus, ModelCatalogEntry, ModelTier, ProviderInfo, AI21_BASE_URL, ANTHROPIC_BASE_URL,
-    BEDROCK_BASE_URL, CEREBRAS_BASE_URL, CHUTES_BASE_URL, COHERE_BASE_URL, DEEPSEEK_BASE_URL,
-    FIREWORKS_BASE_URL, GEMINI_BASE_URL, GITHUB_COPILOT_BASE_URL, GROQ_BASE_URL,
+    BEDROCK_BASE_URL, CEREBRAS_BASE_URL, CHATGPT_BASE_URL, CHUTES_BASE_URL, COHERE_BASE_URL,
+    DEEPSEEK_BASE_URL, FIREWORKS_BASE_URL, GEMINI_BASE_URL, GITHUB_COPILOT_BASE_URL, GROQ_BASE_URL,
     HUGGINGFACE_BASE_URL, KIMI_CODING_BASE_URL, LEMONADE_BASE_URL, LMSTUDIO_BASE_URL,
     MINIMAX_CN_BASE_URL, MINIMAX_INTL_BASE_URL, MISTRAL_BASE_URL, MOONSHOT_BASE_URL,
     OLLAMA_BASE_URL, OPENAI_BASE_URL, OPENROUTER_BASE_URL, PERPLEXITY_BASE_URL, QIANFAN_BASE_URL,
@@ -644,7 +644,7 @@ fn builtin_providers() -> Vec<ProviderInfo> {
         ProviderInfo {
             id: "minimax-cn".into(),
             display_name: "MiniMax (China)".into(),
-            api_key_env: "MINIMAX_API_KEY".into(),
+            api_key_env: "MINIMAX_CN_API_KEY".into(),
             base_url: MINIMAX_CN_BASE_URL.into(),
             key_required: true,
             auth_status: AuthStatus::Missing,
@@ -742,12 +742,12 @@ fn builtin_providers() -> Vec<ProviderInfo> {
             auth_status: AuthStatus::Missing,
             model_count: 0,
         },
-        // ── OpenAI Codex ────────────────────────────────────────────
+        // ── ChatGPT (Session Auth / Codex Responses API) ────────────
         ProviderInfo {
-            id: "codex".into(),
-            display_name: "OpenAI Codex".into(),
-            api_key_env: "OPENAI_API_KEY".into(),
-            base_url: OPENAI_BASE_URL.into(),
+            id: "chatgpt".into(),
+            display_name: "ChatGPT (Session Auth)".into(),
+            api_key_env: "CHATGPT_SESSION_TOKEN".into(),
+            base_url: CHATGPT_BASE_URL.into(),
             key_required: true,
             auth_status: AuthStatus::Missing,
             model_count: 0,
@@ -824,6 +824,13 @@ fn builtin_aliases() -> HashMap<String, String> {
         ("minimax-highspeed", "MiniMax-M2.5-highspeed"),
         ("minimax-m2.1", "MiniMax-M2.1"),
         ("codegeex", "codegeex-4"),
+        // ChatGPT Session Auth aliases
+        ("chatgpt", "gpt-5.1-codex-mini"),
+        ("chatgpt-mini", "gpt-5.1-codex-mini"),
+        ("chatgpt-5.1", "gpt-5.1-codex"),
+        ("chatgpt-5.2", "gpt-5.2-codex"),
+        ("chatgpt-5.3", "gpt-5.3-codex"),
+        ("chatgpt-5.4", "gpt-5.4-codex"),
         // Codex aliases
         ("codex", "codex/gpt-4.1"),
         ("codex-4.1", "codex/gpt-4.1"),
@@ -2903,6 +2910,93 @@ fn builtin_models() -> Vec<ModelCatalogEntry> {
             aliases: vec!["abab7".into()],
         },
         // ══════════════════════════════════════════════════════════════
+        // MiniMax China (6) — same models, different endpoint (minimaxi.com)
+        // ══════════════════════════════════════════════════════════════
+        ModelCatalogEntry {
+            id: "minimax-text-01".into(),
+            display_name: "MiniMax Text 01".into(),
+            provider: "minimax-cn".into(),
+            tier: ModelTier::Smart,
+            context_window: 1_048_576,
+            max_output_tokens: 16_384,
+            input_cost_per_m: 1.00,
+            output_cost_per_m: 3.00,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec![],
+        },
+        ModelCatalogEntry {
+            id: "MiniMax-M2.5".into(),
+            display_name: "MiniMax M2.5".into(),
+            provider: "minimax-cn".into(),
+            tier: ModelTier::Frontier,
+            context_window: 1_048_576,
+            max_output_tokens: 16_384,
+            input_cost_per_m: 1.10,
+            output_cost_per_m: 4.40,
+            supports_tools: true,
+            supports_vision: true,
+            supports_streaming: true,
+            aliases: vec![],
+        },
+        ModelCatalogEntry {
+            id: "MiniMax-M2.5-highspeed".into(),
+            display_name: "MiniMax M2.5 Highspeed".into(),
+            provider: "minimax-cn".into(),
+            tier: ModelTier::Smart,
+            context_window: 1_048_576,
+            max_output_tokens: 16_384,
+            input_cost_per_m: 0.80,
+            output_cost_per_m: 3.20,
+            supports_tools: true,
+            supports_vision: true,
+            supports_streaming: true,
+            aliases: vec![],
+        },
+        ModelCatalogEntry {
+            id: "MiniMax-M2.1".into(),
+            display_name: "MiniMax M2.1".into(),
+            provider: "minimax-cn".into(),
+            tier: ModelTier::Smart,
+            context_window: 1_048_576,
+            max_output_tokens: 16_384,
+            input_cost_per_m: 1.00,
+            output_cost_per_m: 3.00,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec![],
+        },
+        ModelCatalogEntry {
+            id: "abab6.5-chat".into(),
+            display_name: "ABAB 6.5 Chat".into(),
+            provider: "minimax-cn".into(),
+            tier: ModelTier::Balanced,
+            context_window: 245_760,
+            max_output_tokens: 8_192,
+            input_cost_per_m: 0.50,
+            output_cost_per_m: 1.50,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec![],
+        },
+        ModelCatalogEntry {
+            id: "abab7-chat".into(),
+            display_name: "ABAB 7 Chat".into(),
+            provider: "minimax-cn".into(),
+            tier: ModelTier::Smart,
+            context_window: 524_288,
+            max_output_tokens: 16_384,
+            input_cost_per_m: 0.80,
+            output_cost_per_m: 2.40,
+            supports_tools: true,
+            supports_vision: true,
+            supports_streaming: true,
+            aliases: vec![],
+        },
+        // ══════════════════════════════════════════════════════════════
         // Zhipu AI / GLM (6)
         // ══════════════════════════════════════════════════════════════
         ModelCatalogEntry {
@@ -3347,12 +3441,12 @@ fn builtin_models() -> Vec<ModelCatalogEntry> {
             aliases: vec![],
         },
         // ══════════════════════════════════════════════════════════════
-        // OpenAI Codex (2) — reuses OpenAI driver
+        // OpenAI Codex (2) — same OpenAI driver & API key
         // ══════════════════════════════════════════════════════════════
         ModelCatalogEntry {
             id: "codex/gpt-4.1".into(),
             display_name: "GPT-4.1 (Codex)".into(),
-            provider: "codex".into(),
+            provider: "openai".into(),
             tier: ModelTier::Frontier,
             context_window: 1_047_576,
             max_output_tokens: 32_768,
@@ -3366,7 +3460,7 @@ fn builtin_models() -> Vec<ModelCatalogEntry> {
         ModelCatalogEntry {
             id: "codex/o4-mini".into(),
             display_name: "o4-mini (Codex)".into(),
-            provider: "codex".into(),
+            provider: "openai".into(),
             tier: ModelTier::Smart,
             context_window: 200_000,
             max_output_tokens: 100_000,
@@ -3376,6 +3470,79 @@ fn builtin_models() -> Vec<ModelCatalogEntry> {
             supports_vision: true,
             supports_streaming: true,
             aliases: vec!["codex-o4".into()],
+        },
+        // ══════════════════════════════════════════════════════════════
+        // ChatGPT Session Auth (3) — Codex Responses API via OAuth
+        // ══════════════════════════════════════════════════════════════
+        ModelCatalogEntry {
+            id: "gpt-5.4-codex".into(),
+            display_name: "GPT-5.4 Codex".into(),
+            provider: "chatgpt".into(),
+            tier: ModelTier::Frontier,
+            context_window: 200_000,
+            max_output_tokens: 65_536,
+            input_cost_per_m: 0.0,
+            output_cost_per_m: 0.0,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec!["chatgpt-5.4".into()],
+        },
+        ModelCatalogEntry {
+            id: "gpt-5.3-codex".into(),
+            display_name: "GPT-5.3 Codex".into(),
+            provider: "chatgpt".into(),
+            tier: ModelTier::Frontier,
+            context_window: 200_000,
+            max_output_tokens: 65_536,
+            input_cost_per_m: 0.0,
+            output_cost_per_m: 0.0,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec!["chatgpt-5.3".into()],
+        },
+        ModelCatalogEntry {
+            id: "gpt-5.2-codex".into(),
+            display_name: "GPT-5.2 Codex".into(),
+            provider: "chatgpt".into(),
+            tier: ModelTier::Smart,
+            context_window: 200_000,
+            max_output_tokens: 65_536,
+            input_cost_per_m: 0.0,
+            output_cost_per_m: 0.0,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec!["chatgpt-5.2".into()],
+        },
+        ModelCatalogEntry {
+            id: "gpt-5.1-codex".into(),
+            display_name: "GPT-5.1 Codex".into(),
+            provider: "chatgpt".into(),
+            tier: ModelTier::Smart,
+            context_window: 200_000,
+            max_output_tokens: 65_536,
+            input_cost_per_m: 0.0,
+            output_cost_per_m: 0.0,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec!["chatgpt-5.1".into()],
+        },
+        ModelCatalogEntry {
+            id: "gpt-5.1-codex-mini".into(),
+            display_name: "GPT-5.1 Codex Mini".into(),
+            provider: "chatgpt".into(),
+            tier: ModelTier::Balanced,
+            context_window: 200_000,
+            max_output_tokens: 65_536,
+            input_cost_per_m: 0.0,
+            output_cost_per_m: 0.0,
+            supports_tools: true,
+            supports_vision: false,
+            supports_streaming: true,
+            aliases: vec!["chatgpt-mini".into(), "chatgpt".into()],
         },
         // ══════════════════════════════════════════════════════════════
         // Claude Code CLI (3) — subprocess-based
@@ -3873,19 +4040,10 @@ mod tests {
     }
 
     #[test]
-    fn test_codex_provider() {
+    fn test_codex_models_under_openai() {
+        // Codex models are now merged under the "openai" provider
         let catalog = ModelCatalog::new();
-        let codex = catalog.get_provider("codex").unwrap();
-        assert_eq!(codex.display_name, "OpenAI Codex");
-        assert_eq!(codex.api_key_env, "OPENAI_API_KEY");
-        assert!(codex.key_required);
-    }
-
-    #[test]
-    fn test_codex_models() {
-        let catalog = ModelCatalog::new();
-        let models = catalog.models_by_provider("codex");
-        assert_eq!(models.len(), 2);
+        let models = catalog.models_by_provider("openai");
         assert!(models.iter().any(|m| m.id == "codex/gpt-4.1"));
         assert!(models.iter().any(|m| m.id == "codex/o4-mini"));
     }
