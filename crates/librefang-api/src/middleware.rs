@@ -55,6 +55,7 @@ pub async fn request_logging(request: Request<Body>, next: Next) -> Response<Bod
 /// server returns `406 Not Acceptable`.
 pub async fn api_version_headers(request: Request<Body>, next: Next) -> Response<Body> {
     let path = request.uri().path().to_string();
+
     let path_version = crate::versioning::version_from_path(&path);
     let accept_version = request
         .headers()
