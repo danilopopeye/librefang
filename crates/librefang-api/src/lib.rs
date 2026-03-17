@@ -14,6 +14,7 @@ pub mod server;
 pub mod stream_chunker;
 pub mod stream_dedup;
 pub mod types;
+pub mod validation;
 pub mod versioning;
 pub mod webchat;
 pub mod webhook_store;
